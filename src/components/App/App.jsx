@@ -4,18 +4,37 @@ import { ContactList } from '../ContactList/ContactList';
 import { Filter } from '../Filter/Filter';
 import { Contacts, Container, Title } from './App.styled';
 
+const STORAGE_KEY = 'contacts';
+
 export class App extends Component {
   state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
+    contacts: [],
     filter: '',
   };
 
-  filteredContacts = () => {
+  componentDidMount() {
+    this.getContactFromStorage(STORAGE_KEY);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { contacts } = this.state;
+    if (contacts.length < prevState.contacts.length) return;
+    this.saveContactsToStorage(STORAGE_KEY, contacts);
+  }
+
+  getContactFromStorage = key => {
+    let savedContacts = localStorage.getItem(key);
+    if (savedContacts === null) return;
+    savedContacts = JSON.parse(savedContacts);
+    this.setState({ contacts: savedContacts });
+  };
+
+  saveContactsToStorage = (key, contact) => {
+    const changedContactsState = JSON.stringify(contact);
+    localStorage.setItem(key, changedContactsState);
+  };
+
+  filterContacts = () => {
     const { contacts, filter } = this.state;
     const normilizedFilter = filter.toLowerCase();
     return contacts.filter(({ name }) =>
@@ -57,12 +76,8 @@ export class App extends Component {
 
   render() {
     const { contacts, filter } = this.state;
-    const {
-      addNewContact,
-      filterInputHandler,
-      filteredContacts,
-      deleteContact,
-    } = this;
+    const { addNewContact, filterInputHandler, filterContacts, deleteContact } =
+      this;
 
     return (
       <Container>
@@ -73,7 +88,7 @@ export class App extends Component {
             <Contacts>Contacts</Contacts>
             <Filter inputHandler={filterInputHandler} filter={filter} />
             <ContactList
-              contacts={filteredContacts()}
+              contacts={filterContacts()}
               deleteContact={deleteContact}
             />
           </>
