@@ -1,8 +1,12 @@
+import {
+  parseDataFromLS,
+  saveContactsToLS,
+} from 'components/LocalStorageService/LocalStorageService';
 import React, { Component } from 'react';
 import { ContactForm } from '../ContactForm/ContactForm';
 import { ContactList } from '../ContactList/ContactList';
 import { Filter } from '../Filter/Filter';
-import { Contacts, Container, Title } from './App.styled';
+import { Contacts, Container, NoContactsMessage, Title } from './App.styled';
 
 const STORAGE_KEY = 'contacts';
 
@@ -13,34 +17,14 @@ export class App extends Component {
   };
 
   componentDidMount() {
-    this.getContactFromStorage(STORAGE_KEY);
+    this.setState({ contacts: parseDataFromLS(STORAGE_KEY) });
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { contacts } = this.state;
     if (contacts.length < prevState.contacts.length) return;
-    this.saveContactsToStorage(STORAGE_KEY, contacts);
+    saveContactsToLS(STORAGE_KEY, contacts);
   }
-
-  getContactFromStorage = key => {
-    try {
-      let savedContacts = localStorage.getItem(key);
-      if (savedContacts === null) return;
-      savedContacts = JSON.parse(savedContacts);
-      this.setState({ contacts: savedContacts });
-    } catch (error) {
-      console.error('Get state error: ', error.message);
-    }
-  };
-
-  saveContactsToStorage = (key, contact) => {
-    try {
-      const changedContactsState = JSON.stringify(contact);
-      localStorage.setItem(key, changedContactsState);
-    } catch (error) {
-      console.error('Set state error: ', error.message);
-    }
-  };
 
   filterContacts = () => {
     const { contacts, filter } = this.state;
@@ -91,15 +75,19 @@ export class App extends Component {
       <Container>
         <Title>Phonebook</Title>
         <ContactForm submitHandler={addNewContact} />
-        {contacts.length !== 0 && (
+        <Contacts>Contacts</Contacts>
+        {contacts.length !== 0 ? (
           <>
-            <Contacts>Contacts</Contacts>
             <Filter inputHandler={filterInputHandler} filter={filter} />
             <ContactList
               contacts={filterContacts()}
               deleteContact={deleteContact}
             />
           </>
+        ) : (
+          <NoContactsMessage>
+            There are no contacts yet. Please fill the form to add a new one!
+          </NoContactsMessage>
         )}
       </Container>
     );

@@ -15,6 +15,10 @@ export const Title = styled.h1`
 `;
 
 export const Contacts = styled.h2`
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   text-align: center;
+`;
+
+export const NoContactsMessage = styled.p`
+  font-size: 20px;
 `;
