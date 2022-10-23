@@ -23,15 +23,23 @@ export class App extends Component {
   }
 
   getContactFromStorage = key => {
-    let savedContacts = localStorage.getItem(key);
-    if (savedContacts === null) return;
-    savedContacts = JSON.parse(savedContacts);
-    this.setState({ contacts: savedContacts });
+    try {
+      let savedContacts = localStorage.getItem(key);
+      if (savedContacts === null) return;
+      savedContacts = JSON.parse(savedContacts);
+      this.setState({ contacts: savedContacts });
+    } catch (error) {
+      console.error('Get state error: ', error.message);
+    }
   };
 
   saveContactsToStorage = (key, contact) => {
-    const changedContactsState = JSON.stringify(contact);
-    localStorage.setItem(key, changedContactsState);
+    try {
+      const changedContactsState = JSON.stringify(contact);
+      localStorage.setItem(key, changedContactsState);
+    } catch (error) {
+      console.error('Set state error: ', error.message);
+    }
   };
 
   filterContacts = () => {
